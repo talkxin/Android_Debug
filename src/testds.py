@@ -1,3 +1,4 @@
+# 用于计算xy坐标与下一个点的偏差值用于计算采集的精度
 import math
 import re
 x1 = 1121.76
