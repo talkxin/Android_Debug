@@ -5,11 +5,14 @@ import pexpect
 import re
 import src.AndroidKeyName
 import copy
+from src.adb import ADB
 
 # android目录
 ANDROID_HOME = ""
 # adb路径
 _adb = ""
+# pyadb
+_pyadb = None
 _Recording = True
 # 是否录制
 recording = True
@@ -163,7 +166,9 @@ class UserPlay():
     def play(self):
         for i in range(0, len(userEvent)):
             event = userEvent[i]
-            os.system("%s shell sendevent %s %d %d %d" % (_adb, event.keyevent, event.keytype, event.keyname, event.keycode))
+            _pyadb.shell_command("sendevent %s %d %d %d" % (event.keyevent, event.keytype, event.keyname, event.keycode))
+#             os.system("%s shell sendevent %s %d %d %d" % (_adb, event.keyevent, event.keytype, event.keyname, event.keycode))
+#             print("%s shell sendevent %s %d %d %d" % (_adb, event.keyevent, event.keytype, event.keyname, event.keycode))
             if(event.keyend and i < len(userEvent) - 1):
                 enext = userEvent[i + 1]
                 print(enext.keytime - event.keytime)
@@ -173,6 +178,10 @@ if(os.getenv("ANDROID_HOME") != None):
     ANDROID_HOME = os.getenv("ANDROID_HOME")
     # 找到adb路径
     _adb = ANDROID_HOME + "/platform-tools/adb"
+    _pyadb = ADB(_adb)
+    _pyadb.wait_for_device()
+    err, dev = _pyadb.get_devices()
+    _pyadb.set_target_device(dev[0])
     # 开始录制
     if(input("输入yes开始录制") == "y"):
         adb = AdbService()
@@ -192,4 +201,3 @@ if(os.getenv("ANDROID_HOME") != None):
 else:
     print("没有找到ANDROID_HOME")
     exit()
-    
